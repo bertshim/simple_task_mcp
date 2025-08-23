@@ -1,6 +1,14 @@
 # Simple Task MCP Server
 
-간단한 작업 관리 시스템을 위한 MCP(Model Context Protocol) 서버입니다. 작업 목록을 순차적으로 진행하고 진행 상태를 추적할 수 있습니다.
+간단한 작업 관리 시스템을 위한 MCP(Model Context Protocol) 서버입니다. 
+다른 Task Manager 와 달리 사용과 설치가 매우 간단하고, 직관적이며,
+작업 목록을 순차적으로 진행하고 진행 상태를 추적할 수 있습니다.
+
+해야할 일을 text 파일에 차례대로 한 문단씩 기입하고,
+차례대로 해당 일을 수행하게 됩니다.
+즉 할일 목록 처럼 프롬프트를 여거래 만든 다음에 하나씩 수행하는 일을 합니다.
+할일 목록을 수정하거나 추가 하거나 삭제하거나 자유롭게 사용가능하고,
+수정된 내용을 바로 적용할 수 있습니다.
 
 ## 🎯 간단한 사용법 
 
@@ -258,19 +266,42 @@ Cursor에서 MCP 서버를 자동으로 실행하려면 설정에 다음을 추�
 
 설정에서 `mcpServers`를 검색하고 다음 JSON을 추가하세요:
 
+**macOS/Linux 예제:**
 ```json
 {
   "mcpServers": {
     "simple-task-mcp": {
       "name": "Simple Task MCP",
-      "command": "/Users/bert/openmodle/simpletask/venv/bin/python",
+      "command": "/Users/bert/simpletask/venv/bin/python",
       "args": [
-        "/Users/bert/openmodle/simpletask/simple_task_mcp.py"
+        "/Users/bert/simpletask/simple_task_mcp.py",
+        "--project-root",
+        "."
       ],
       "type": "stdio",
       "env": {
-        "PYTHONUNBUFFERED": "1",
-        "PROJECT_ROOT": "/Users/bert/openmodle/test_mcp"
+        "PYTHONUNBUFFERED": "1"
+      }
+    }
+  }
+}
+```
+
+**Windows 예제:**
+```json
+{
+  "mcpServers": {
+    "simple-task-mcp": {
+      "name": "Simple Task MCP",
+      "command": "D:/drumgit/simple_task_mcp/venv/Scripts/python.exe",
+      "args": [
+        "D:/drumgit/simple_task_mcp/simple_task_mcp.py",
+        "--project-root",
+        "."
+      ],
+      "type": "stdio",
+      "env": {
+        "PYTHONUNBUFFERED": "1"
       }
     }
   }
@@ -283,38 +314,37 @@ Cursor에서 MCP 서버를 자동으로 실행하려면 설정에 다음을 추�
 
 - **`command`**: 가상환경의 Python 실행 파일 경로
 - **`args`**: `simple_task_mcp.py` 파일의 절대 경로
-- **`PROJECT_ROOT`**: (선택사항) - 특정 프로젝트 경로를 강제로 지정하고 싶을 때만 사용
-  - 설정하지 않으면 현재 워크스페이스를 자동으로 감지합니다
+
+### 4. 중요: --project-root 설정
+
+> ⚠️ **필수 설정**: `args` 배열에 반드시 `"--project-root", "."` 를 포함해야 합니다!
+
+```json
+"args": [
+  "/path/to/simple_task_mcp.py",
+  "--project-root",
+  "."
+]
+```
+
+**이 설정이 없으면:**
+- `.simple` 폴더가 MCP 서버 실행 위치에 생성됩니다
+- 실제 작업하는 프로젝트 폴더가 아닌 다른 곳에 파일이 생성됩니다
+- MCP 도구가 올바른 프로젝트를 찾지 못합니다
+
+**이 설정이 있으면:**
+- `.simple` 폴더가 현재 Cursor 워크스페이스에 생성됩니다
+- `simple_task.txt`, `simple_rule.txt`, `simple_state.json` 파일이 올바른 위치에 생성됩니다
 
 
-### 4. 자동 실행 확인
+### 5. 자동 실행 확인
 
 설정 저장 후 Cursor를 재시작하면:
 - MCP 서버가 자동으로 백그라운드에서 실행
 - 작업 도구들이 자동으로 사용 가능
 - 별도 터미널 실행 불필요
 
-### 5. 간단한 설정 (PROJECT_ROOT 불필요)
 
-**🎉 이제 `PROJECT_ROOT` 설정이 필요 없습니다!**
-
-```json
-{
-  "mcpServers": {
-    "simple-task-mcp": {
-      "name": "Simple Task MCP",
-      "command": "/Users/bert/openmodle/simpletask/venv/bin/python",
-      "args": [
-        "/Users/bert/openmodle/simpletask/simple_task_mcp.py"
-      ],
-      "type": "stdio",
-      "env": {
-        "PYTHONUNBUFFERED": "1"
-      }
-    }
-  }
-}
-```
 
 **자동 감지**: MCP 서버가 Cursor의 현재 워크스페이스 루트(CWD)를 자동으로 감지합니다!
 
@@ -400,11 +430,11 @@ touch_simple()        # .simple 디렉토리 생성
 - `tasks_complete(index)`로 설정
 - `tasks_reset_status()`로 대기 중으로 되돌리기 가능
 
-### 🔄 상태 전환 흐름
+### 상태 전환 흐름
 ```
-대기 중(⏸️) → 진행 중(⏳) → 완료(✅)
-    ↑                              ↓
-    └───────── 초기화 ─────────────┘
+대기 중(대기) → 완료(✅)
+    ↑           ↓
+    └───────────┘
 ```
 
 ## 🚨 문제 해결
