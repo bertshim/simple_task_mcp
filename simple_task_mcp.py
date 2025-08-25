@@ -325,16 +325,16 @@ def explain_tasks_detailed() -> str:
     
     return "\n".join(detail_lines)
 
-# 기존 함수명과의 호환성을 위한 별칭
-@mcp.tool()
-def tasks_list() -> str:
-    """Alias for show_task_table - 기존 호환성 유지."""
-    return show_task_table()
+# # 기존 함수명과의 호환성을 위한 별칭
+# @mcp.tool()
+# def tasks_list() -> str:
+#     """Alias for show_task_table - 기존 호환성 유지."""
+#     return show_task_table()
 
-@mcp.tool()
-def tasks_detail() -> str:
-    """Alias for explain_tasks_detailed - 기존 호환성 유지."""
-    return explain_tasks_detailed()
+# @mcp.tool()
+# def tasks_detail() -> str:
+#     """Alias for explain_tasks_detailed - 기존 호환성 유지."""
+#     return explain_tasks_detailed()
 
 @mcp.tool()
 def tasks_peek() -> str:
